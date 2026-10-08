@@ -14,18 +14,20 @@ import {
 } from 'lucide-react';
 
 import { QUESTIONS, DIMENSIONS } from './data/questions';
-import { calculateQuizResults } from './utils/scoring';
+import { calculateQuizResultsV2 } from './utils/scoring_v2';
 import WelcomeModal from './components/WelcomeModal';
 import QuestionCard from './components/QuestionCard';
-import Block8Form from './components/Block8Form';
+import TradeoffsForm from './components/TradeoffsForm';
+import ValuesForm from './components/ValuesForm';
 import ResultsView from './components/ResultsView';
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState('welcome'); // 'welcome' | 'quiz' | 'block8' | 'results'
+  const [currentScreen, setCurrentScreen] = useState('welcome'); // 'welcome' | 'quiz' | 'tradeoffs' | 'values' | 'results'
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [notes, setNotes] = useState({});
-  const [block8, setBlock8] = useState({ A: [], B: null, C: [] });
+  const [tradeoffAnswers, setTradeoffAnswers] = useState({});
+  const [selectedValues, setSelectedValues] = useState([]);
   const [results, setResults] = useState(null);
 
   // Carregar do localStorage se houver progresso prévio
@@ -36,7 +38,8 @@ export default function App() {
         const parsed = JSON.parse(saved);
         if (parsed.answers) setAnswers(parsed.answers);
         if (parsed.notes) setNotes(parsed.notes);
-        if (parsed.block8) setBlock8(parsed.block8);
+        if (parsed.tradeoffAnswers) setTradeoffAnswers(parsed.tradeoffAnswers);
+        if (parsed.selectedValues) setSelectedValues(parsed.selectedValues);
         if (parsed.currentScreen) setCurrentScreen(parsed.currentScreen);
         if (parsed.currentQuestionIndex !== undefined) setCurrentQuestionIndex(parsed.currentQuestionIndex);
         if (parsed.results) setResults(parsed.results);
@@ -52,7 +55,8 @@ export default function App() {
       localStorage.setItem('quizpolis_session', JSON.stringify({ 
         answers, 
         notes, 
-        block8, 
+        tradeoffAnswers,
+        selectedValues,
         currentScreen, 
         currentQuestionIndex,
         results
@@ -60,7 +64,7 @@ export default function App() {
     } catch (e) {
       // Ignorar erros de quota
     }
-  }, [answers, notes, block8, currentScreen, currentQuestionIndex, results]);
+  }, [answers, notes, tradeoffAnswers, selectedValues, currentScreen, currentQuestionIndex, results]);
 
   const handleStart = () => {
     setCurrentScreen('quiz');
@@ -86,7 +90,8 @@ export default function App() {
     if (currentQuestionIndex < QUESTIONS.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
-      setCurrentScreen('block8');
+      setCurrentScreen('tradeoffs');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -97,7 +102,8 @@ export default function App() {
   };
 
   const handleFinishQuiz = () => {
-    const calculated = calculateQuizResults(answers, block8);
+    // Agora o scoring_v2 usa answers, tradeoffAnswers e selectedValues
+    const calculated = calculateQuizResultsV2(answers, tradeoffAnswers, selectedValues);
     setResults(calculated);
     setCurrentScreen('results');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -116,7 +122,8 @@ export default function App() {
     if (window.confirm("Deseja realmente reiniciar o quiz? Suas respostas atuais serão apagadas.")) {
       setAnswers({});
       setNotes({});
-      setBlock8({ A: [], B: null, C: [] });
+      setTradeoffAnswers({});
+      setSelectedValues([]);
       setResults(null);
       setCurrentQuestionIndex(0);
       setCurrentScreen('welcome');
@@ -133,11 +140,11 @@ export default function App() {
     <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans select-none relative">
       
       {/* Barra de Progresso Global (visível apenas durante o quiz) */}
-      {(currentScreen === 'quiz' || currentScreen === 'block8') && (
+      {(currentScreen === 'quiz' || currentScreen === 'tradeoffs' || currentScreen === 'values') && (
         <div className="fixed top-0 left-0 w-full h-1 bg-slate-900 z-50">
           <div 
             className="h-full bg-indigo-500 transition-all duration-500 ease-out"
-            style={{ width: `${currentScreen === 'block8' ? 100 : progressPercentage}%` }}
+            style={{ width: `${currentScreen === 'tradeoffs' ? 90 : currentScreen === 'values' ? 100 : progressPercentage}%` }}
           />
         </div>
       )}
@@ -220,14 +227,29 @@ export default function App() {
           </div>
         )}
 
-        {currentScreen === 'block8' && (
-          <Block8Form
-            data={block8}
-            onChange={setBlock8}
-            onFinish={handleFinishQuiz}
+        {currentScreen === 'tradeoffs' && (
+          <TradeoffsForm
+            tradeoffAnswers={tradeoffAnswers}
+            onAnswer={(qId, ansId) => setTradeoffAnswers(prev => ({ ...prev, [qId]: ansId }))}
+            onNext={() => {
+              setCurrentScreen('values');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             onPrev={() => {
               setCurrentScreen('quiz');
               setCurrentQuestionIndex(QUESTIONS.length - 1);
+            }}
+          />
+        )}
+
+        {currentScreen === 'values' && (
+          <ValuesForm
+            selectedValues={selectedValues}
+            onChange={setSelectedValues}
+            onNext={handleFinishQuiz}
+            onPrev={() => {
+              setCurrentScreen('tradeoffs');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           />
         )}
@@ -237,7 +259,8 @@ export default function App() {
             results={results}
             answers={answers}
             notes={notes}
-            block8={block8}
+            tradeoffAnswers={tradeoffAnswers}
+            selectedValues={selectedValues}
             onRestart={handleRestart}
           />
         )}
