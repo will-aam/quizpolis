@@ -12,7 +12,7 @@ import {
   HelpCircle,
   RotateCcw
 } from 'lucide-react';
-import { exportToPDF, exportToText, exportToJSON } from '../utils/export';
+import { exportToPDF, exportToText, exportToJSON } from '../utils/export_v2';
 import { QUESTIONS } from '../data/questions';
 import { VALUES_LIST } from '../data/dimensionsMap';
 
@@ -168,7 +168,7 @@ export default function ResultsViewV2({ results, answers, notes = {}, tradeoffAn
         <div className="mt-8 pt-6 border-t border-slate-800 flex flex-wrap gap-3 items-center justify-between">
           <div className="flex flex-wrap gap-2.5">
             <button
-              onClick={() => exportToPDF(results, answers, notes, null, false)}
+              onClick={() => exportToPDF(results, answers, notes, tradeoffAnswers, selectedValues, false)}
               className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <Download className="w-4 h-4" />
