@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { 
-  ArrowLeft, 
+import {
+  ArrowLeft,
   ArrowRight,
   Check,
   MessageSquarePlus
@@ -45,7 +45,7 @@ export default function QuestionCard({
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-10 animate-in fade-in duration-500 py-4">
-      
+
       {/* Header Minimalista */}
       <header className="space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/60 pb-5">
@@ -58,7 +58,7 @@ export default function QuestionCard({
             Questão {currentIndex + 1} / {totalQuestions}
           </span>
         </div>
-        
+
         {question.isConditional && (
           <span className="inline-block px-3 py-1 rounded bg-slate-900 border border-slate-800 text-slate-400 text-[10px] uppercase tracking-widest font-bold">
             Cenário Condicional
@@ -81,11 +81,10 @@ export default function QuestionCard({
                   key={opt.value}
                   type="button"
                   onClick={() => onSelectAnswer(opt.value)}
-                  className={`group flex-1 flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-3 sm:gap-2 px-4 py-3 sm:py-3.5 rounded-xl border transition-all duration-200 ${
-                    isSelected
+                  className={`group flex-1 flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-3 sm:gap-2 px-4 py-3 sm:py-3.5 rounded-xl border transition-all duration-200 ${isSelected
                       ? 'bg-indigo-600/10 border-indigo-500/50 text-indigo-300'
                       : 'bg-transparent border-slate-800/80 text-slate-400 hover:border-slate-600 hover:bg-slate-900/50'
-                  }`}
+                    }`}
                 >
                   <span className={`text-xl font-medium font-mono ${isSelected ? 'text-indigo-400' : 'text-slate-500'}`}>
                     {opt.value}
@@ -108,22 +107,19 @@ export default function QuestionCard({
                   key={opt.id}
                   type="button"
                   onClick={() => onSelectAnswer(opt.id)}
-                  className={`w-full p-5 sm:p-6 rounded-2xl border text-left transition-all duration-300 flex items-start gap-5 ${
-                    isSelected
+                  className={`w-full p-5 sm:p-6 rounded-2xl border text-left transition-all duration-300 flex items-start gap-5 ${isSelected
                       ? 'bg-indigo-600/10 border-indigo-500/50'
                       : 'bg-transparent border-slate-800/80 hover:border-slate-600 hover:bg-slate-900/50'
-                  }`}
+                    }`}
                 >
-                  <span className={`w-8 h-8 rounded-full flex items-center justify-center font-mono text-sm shrink-0 transition-colors ${
-                    isSelected 
-                      ? 'bg-indigo-500 text-white' 
+                  <span className={`w-8 h-8 rounded-full flex items-center justify-center font-mono text-sm shrink-0 transition-colors ${isSelected
+                      ? 'bg-indigo-500 text-white'
                       : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700'
-                  }`}>
+                    }`}>
                     {opt.id}
                   </span>
-                  <span className={`text-base sm:text-lg leading-relaxed pt-0.5 ${
-                    isSelected ? 'text-indigo-100 font-medium' : 'text-slate-300'
-                  }`}>
+                  <span className={`text-base sm:text-lg leading-relaxed pt-0.5 ${isSelected ? 'text-indigo-100 font-medium' : 'text-slate-300'
+                    }`}>
                     {opt.text}
                   </span>
                 </button>
@@ -147,7 +143,7 @@ export default function QuestionCard({
             rows={1}
             value={currentNote || ''}
             onChange={(e) => onSaveNote && onSaveNote(e.target.value)}
-            placeholder="Escreva aqui qualquer contexto adicional para sua resposta..."
+            placeholder="Escreva aqui qualquer contexto adicional..."
             className="w-full bg-transparent border-b border-slate-800 focus:border-indigo-500 py-3 text-sm sm:text-base text-slate-200 placeholder:text-slate-700 focus:outline-none transition-colors resize-none overflow-hidden min-h-[44px]"
             onInput={(e) => {
               e.target.style.height = 'auto';
@@ -163,11 +159,10 @@ export default function QuestionCard({
           type="button"
           onClick={onPrev}
           disabled={!canGoPrev}
-          className={`flex items-center gap-3 py-3 pr-4 text-sm font-bold tracking-wide transition-all ${
-            canGoPrev
+          className={`flex items-center gap-3 py-3 pr-4 text-sm font-bold tracking-wide transition-all ${canGoPrev
               ? 'text-slate-400 hover:text-white'
               : 'text-slate-700 cursor-not-allowed'
-          }`}
+            }`}
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="hidden sm:inline">Anterior</span>
@@ -177,11 +172,10 @@ export default function QuestionCard({
           type="button"
           onClick={onNext}
           disabled={!canGoNext}
-          className={`flex items-center gap-3 px-8 py-3.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${
-            canGoNext
+          className={`flex items-center gap-3 px-8 py-3.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${canGoNext
               ? 'bg-white text-slate-950 hover:bg-slate-200 active:scale-95'
               : 'bg-slate-900 text-slate-600 cursor-not-allowed'
-          }`}
+            }`}
         >
           <span>{currentIndex === totalQuestions - 1 ? "Prosseguir" : "Próxima"}</span>
           <ArrowRight className="w-5 h-5" />

@@ -83,7 +83,7 @@ export default function ResultsView({ results, answers, notes = {}, block8, onRe
             "{results.disclaimer}"
           </blockquote>
 
-          {/* Síntese Sintética (Regra de ouro: não dizer X% de direita) */}
+          {/* Síntese Sintética (Regra: não dizer X% de direita) */}
           <div className="pt-4 border-t border-slate-800">
             <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-1">
               Síntese Multidimensional:
