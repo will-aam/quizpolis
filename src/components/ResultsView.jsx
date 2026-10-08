@@ -19,6 +19,7 @@ import { QUESTIONS, BLOCK_8_QUESTIONS } from '../data/questions';
 export default function ResultsView({ results, answers, notes = {}, block8, onRestart }) {
   const [showFullGabarito, setShowFullGabarito] = React.useState(false);
   const [showScrollButton, setShowScrollButton] = React.useState(false);
+  const [showCalcModal, setShowCalcModal] = React.useState(false);
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -57,8 +58,8 @@ export default function ResultsView({ results, answers, notes = {}, block8, onRe
       
       <div id="report-content" className="space-y-8">
       {/* Banner Principal com Tendência e Ressalva */}
-      <div className="bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900 border border-indigo-500/30 rounded-3xl p-6 sm:p-10 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
+      <div className="bg-transparent sm:bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900 border-none sm:border border-indigo-500/30 rounded-none sm:rounded-3xl p-2 sm:p-10 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20 hidden sm:block"></div>
 
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2 px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs font-medium text-indigo-300">
@@ -128,13 +129,22 @@ export default function ResultsView({ results, answers, notes = {}, block8, onRe
             </button>
           </div>
 
-          <button
-            onClick={onRestart}
-            className="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-white px-3 py-2 rounded-lg hover:bg-slate-800/50 transition-colors"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            Refazer Quiz
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowCalcModal(true)}
+              className="inline-flex items-center gap-2 text-xs text-indigo-400 hover:text-indigo-300 px-3 py-2 rounded-lg hover:bg-indigo-500/10 transition-colors"
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+              Como o cálculo é feito?
+            </button>
+            <button
+              onClick={onRestart}
+              className="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-white px-3 py-2 rounded-lg hover:bg-slate-800/50 transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Refazer Quiz
+            </button>
+          </div>
         </div>
       </div>
 
@@ -343,6 +353,49 @@ export default function ResultsView({ results, answers, notes = {}, block8, onRe
         >
           <ArrowUp className="w-5 h-5" />
         </button>
+      )}
+      {/* Modal: Entenda o Cálculo */}
+      {showCalcModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-slate-900 sm:border border-slate-700 sm:rounded-2xl p-6 sm:p-8 w-full h-full sm:h-auto sm:max-h-[85vh] max-w-2xl overflow-y-auto space-y-6 shadow-2xl relative">
+            <button 
+              onClick={() => setShowCalcModal(false)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <div className="flex items-center gap-3 text-indigo-400">
+              <HelpCircle className="w-6 h-6" />
+              <h2 className="text-xl font-bold text-white">Como seu resultado foi calculado?</h2>
+            </div>
+            
+            <div className="space-y-4 text-sm text-slate-300 leading-relaxed">
+              <p>O <strong>Mapeamento Ideológico</strong> não soma simplesmente "pontos de direita e esquerda". Ele funciona através de um modelo <strong>multidimensional</strong>:</p>
+              
+              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                <h3 className="font-semibold text-slate-100 flex items-center gap-2"><Layers className="w-4 h-4 text-sky-400" /> 1. Eixos Independentes</h3>
+                <p>O quiz é dividido em 7 áreas (Economia, Segurança, Costumes, etc.). Cada resposta que você dá movimenta seu "peso" em uma escala de 1 a 5 apenas dentro daquela área específica. Por isso você pode ser avaliado como Centro em Economia, mas Direita em Segurança, sem que um anule o outro.</p>
+              </div>
+
+              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                <h3 className="font-semibold text-slate-100 flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-400" /> 2. O Peso da Contextualidade</h3>
+                <p>Nós medimos quantas vezes você optou por <strong>cenários condicionais</strong> (a alternativa "Depende"). Se você tem um alto número de "Dependes", o algoritmo entende que seu perfil é pragmático e flexível. Se você evita o "Depende", seu perfil é principialista e ideologicamente rígido. Isso afeta o seu <em>Grau de Contextualidade</em>.</p>
+              </div>
+
+              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                <h3 className="font-semibold text-slate-100 flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-indigo-400" /> 3. Análise de Coerência</h3>
+                <p>No Bloco 8, você selecionou seus princípios fundamentais. O algoritmo cruza o princípio que você disse ser o mais importante (ex: Liberdade) com as respostas dadas ao longo do teste (ex: Você realmente defendeu liberdade de mercado e costumes?). Isso gera a análise final de coerência.</p>
+              </div>
+
+              <p className="italic text-slate-400 pt-2 text-xs text-center">A matemática utiliza médias ponderadas aplicadas aos pesos predefinidos de cada alternativa.</p>
+            </div>
+            <div className="pt-2 flex justify-end">
+              <button onClick={() => setShowCalcModal(false)} className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-all">
+                Entendi
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
