@@ -19,7 +19,7 @@ import WelcomeModal from './components/WelcomeModal';
 import QuestionCard from './components/QuestionCard';
 import TradeoffsForm from './components/TradeoffsForm';
 import ValuesForm from './components/ValuesForm';
-import ResultsView from './components/ResultsView';
+import ResultsViewV2 from './components/ResultsViewV2';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('welcome'); // 'welcome' | 'quiz' | 'tradeoffs' | 'values' | 'results'
@@ -255,7 +255,7 @@ export default function App() {
         )}
 
         {currentScreen === 'results' && results && (
-          <ResultsView
+          <ResultsViewV2
             results={results}
             answers={answers}
             notes={notes}
