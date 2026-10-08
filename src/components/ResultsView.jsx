@@ -11,12 +11,9 @@ import {
   ArrowRight,
   Layers,
   ChevronDown,
-  ChevronUp,
-  MessageSquare,
-  ArrowUp,
-  Image as ImageIcon
+  ArrowUp
 } from 'lucide-react';
-import { exportToPDF, exportToText, exportToJSON, exportToInstagramStory } from '../utils/export';
+import { exportToPDF, exportToText, exportToJSON } from '../utils/export';
 import { QUESTIONS, BLOCK_8_QUESTIONS } from '../data/questions';
 
 export default function ResultsView({ results, answers, notes = {}, block8, onRestart }) {
@@ -114,13 +111,7 @@ export default function ResultsView({ results, answers, notes = {}, block8, onRe
               <Download className="w-4 h-4" />
               Relatório + Gabarito
             </button>
-            <button
-              onClick={() => exportToInstagramStory('report-content')}
-              className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-500 hover:to-pink-500 text-white font-medium text-sm transition-all"
-            >
-              <ImageIcon className="w-4 h-4" />
-              Stories (Imagem)
-            </button>
+
             <button
               onClick={() => exportToText(results, answers, notes, block8)}
               className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium text-sm transition-all hidden sm:flex"

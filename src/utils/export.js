@@ -73,7 +73,7 @@ export function exportToPDF(results, answers, notes = {}, block8 = {}, includeGa
 
   y += 38;
 
-  // 3. Síntese Descritiva & Grau de Contextualidade
+  // 3. Síntese Descritiva & Segunda Camada
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.setTextColor(15, 23, 42);
@@ -87,29 +87,88 @@ export function exportToPDF(results, answers, notes = {}, block8 = {}, includeGa
   doc.text(synthLines, margin, y);
   y += (synthLines.length * 4.5) + 4;
 
-  // Bloco de Contextualidade e Princípios
-  doc.setFillColor(248, 250, 252);
-  doc.rect(margin, y, contentWidth, 22, "F");
+  checkPageBreak(50);
+  
+  // -- SEGUNDA CAMADA --
   doc.setDrawColor(226, 232, 240);
-  doc.rect(margin, y, contentWidth, 22, "S");
+  doc.line(margin, y, pageWidth - margin, y);
+  y += 6;
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
-  doc.setTextColor(30, 41, 59);
-  doc.text(`Grau de Contextualidade: ${results.contextuality.grade} (${results.contextuality.profileStyle})`, margin + 4, y + 6);
-
+  doc.setTextColor(79, 70, 229);
+  doc.text("SEGUNDA CAMADA", margin, y);
+  
+  doc.setFillColor(241, 245, 249);
+  doc.roundedRect(margin + 35, y - 3, 25, 5, 1, 1, "F");
+  doc.setFontSize(7);
+  doc.setTextColor(51, 65, 85);
+  doc.text(`Grau ${results.contextuality.grade}`, margin + 38, y + 0.5);
+  
+  y += 6;
+  doc.setFontSize(11);
+  doc.setTextColor(15, 23, 42);
+  doc.text(`Perfil: ${results.contextuality.profileStyle}`, margin, y);
+  
+  y += 5;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(71, 85, 105);
-  const contextDesc = doc.splitTextToSize(results.contextuality.description, contentWidth - 8);
-  doc.text(contextDesc, margin + 4, y + 11);
+  const contextDesc = doc.splitTextToSize(results.contextuality.description, contentWidth);
+  doc.text(contextDesc, margin, y);
+  y += (contextDesc.length * 4);
 
-  if (results.principles.selected.length > 0) {
-    doc.setFont("helvetica", "bold");
-    doc.text(`Princípios Prioritários: ${results.principles.selected.join(", ")}`, margin + 4, y + 18);
-  }
+  y += 2;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.text(`Cenários com resposta "Depende": ${results.contextuality.choseDependeCount} de 7`, margin, y);
+  y += 10;
 
-  y += 28;
+  // -- PRINCÍPIOS E TOMADA DE DECISÃO --
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(79, 70, 229);
+  doc.text("PRINCÍPIOS & TOMADA DE DECISÃO", margin, y);
+  y += 6;
+
+  doc.setFontSize(11);
+  doc.setTextColor(15, 23, 42);
+  doc.text("Princípios Escolhidos:", margin, y);
+  y += 5;
+
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(71, 85, 105);
+  const princText = results.principles.selected.length > 0 ? results.principles.selected.join(", ") : "Nenhum selecionado";
+  const pLines = doc.splitTextToSize(princText, contentWidth);
+  doc.text(pLines, margin, y);
+  y += (pLines.length * 4) + 2;
+
+  // Box Coerência
+  const cohDescLines = doc.splitTextToSize(results.principles.coherenceNote || "Sem análise disponível", contentWidth - 6);
+  const boxHeight = Math.max(16, (cohDescLines.length * 4) + 12);
+  
+  doc.setFillColor(248, 250, 252);
+  doc.roundedRect(margin, y, contentWidth, boxHeight, 1, 1, "F");
+  doc.setDrawColor(226, 232, 240);
+  doc.roundedRect(margin, y, contentWidth, boxHeight, 1, 1, "S");
+  
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(30, 41, 59);
+  doc.text("Análise de coerência:", margin + 3, y + 5);
+  
+  doc.setFont("helvetica", "normal");
+  doc.text(cohDescLines, margin + 3, y + 10);
+  y += boxHeight + 6;
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.text(`Fatores de contexto decisivos: `, margin, y);
+  doc.setFont("helvetica", "normal");
+  doc.text((results.principles.contextFactors || []).join(", ") || "Nenhum", margin + 42, y);
+
+  y += 12;
 
   // 4. Tabela de Posicionamento por Dimensão
   doc.setFont("helvetica", "bold");
@@ -255,31 +314,6 @@ export function exportToPDF(results, answers, notes = {}, block8 = {}, includeGa
   // Salvar
   const suffix = includeGabarito ? "_Completo" : "_Relatorio";
   doc.save(`Quizpolis_Resultado${suffix}_${new Date().toISOString().slice(0, 10)}.pdf`);
-}
-
-import html2canvas from 'html2canvas';
-
-export async function exportToInstagramStory(elementId) {
-  const element = document.getElementById(elementId);
-  if (!element) return;
-  
-  try {
-    const canvas = await html2canvas(element, {
-      backgroundColor: '#020617', // slate-950
-      scale: 2, 
-      useCORS: true,
-      logging: false,
-    });
-    
-    const dataUrl = canvas.toDataURL("image/png");
-    const a = document.createElement("a");
-    a.href = dataUrl;
-    a.download = `quizpolis_story_${new Date().toISOString().slice(0, 10)}.png`;
-    a.click();
-  } catch (error) {
-    console.error("Erro ao gerar imagem para story:", error);
-    alert("Não foi possível gerar a imagem. Tente novamente.");
-  }
 }
 
 /**

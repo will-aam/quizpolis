@@ -37,20 +37,30 @@ export default function App() {
         if (parsed.answers) setAnswers(parsed.answers);
         if (parsed.notes) setNotes(parsed.notes);
         if (parsed.block8) setBlock8(parsed.block8);
+        if (parsed.currentScreen) setCurrentScreen(parsed.currentScreen);
+        if (parsed.currentQuestionIndex !== undefined) setCurrentQuestionIndex(parsed.currentQuestionIndex);
+        if (parsed.results) setResults(parsed.results);
       }
     } catch (e) {
       console.warn("Could not load previous session", e);
     }
   }, []);
 
-  // Salvar no localStorage conforme o usuário responde
+  // Salvar no localStorage conforme o usuário responde e navega
   useEffect(() => {
     try {
-      localStorage.setItem('quizpolis_session', JSON.stringify({ answers, notes, block8 }));
+      localStorage.setItem('quizpolis_session', JSON.stringify({ 
+        answers, 
+        notes, 
+        block8, 
+        currentScreen, 
+        currentQuestionIndex,
+        results
+      }));
     } catch (e) {
       // Ignorar erros de quota
     }
-  }, [answers, notes, block8]);
+  }, [answers, notes, block8, currentScreen, currentQuestionIndex, results]);
 
   const handleStart = () => {
     setCurrentScreen('quiz');
