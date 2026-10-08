@@ -3,9 +3,12 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
-  MessageSquarePlus
+  MessageSquarePlus,
+  HelpCircle,
+  X
 } from 'lucide-react';
 import { LIKERT_OPTIONS, DIMENSIONS } from '../data/questions';
+import { EXPLANATIONS } from '../data/explanations.jsx';
 
 export default function QuestionCard({
   question,
@@ -20,7 +23,14 @@ export default function QuestionCard({
   canGoNext,
   canGoPrev
 }) {
+  const [showExplanation, setShowExplanation] = React.useState(false);
   const dimensionInfo = Object.values(DIMENSIONS).find(d => d.id === question.dimension);
+  const explanation = EXPLANATIONS[question.id];
+
+  // Fechar modal ao trocar de questão
+  useEffect(() => {
+    setShowExplanation(false);
+  }, [question.id]);
 
   // Teclas numéricas para responder rápido
   useEffect(() => {
@@ -65,9 +75,22 @@ export default function QuestionCard({
           </span>
         )}
 
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-slate-100 leading-snug sm:leading-tight">
-          {question.text}
-        </h2>
+        <div className="space-y-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-slate-100 leading-snug sm:leading-tight">
+            {question.text}
+          </h2>
+          {explanation && (
+            <div>
+              <button
+                onClick={() => setShowExplanation(true)}
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 hover:text-indigo-300 border border-indigo-500/20 transition-colors shrink-0 text-xs font-bold uppercase tracking-wider"
+              >
+                <HelpCircle className="w-4 h-4" />
+                Entenda a questão
+              </button>
+            </div>
+          )}
+        </div>
       </header>
 
       {/* Opções de Resposta */}
@@ -181,6 +204,37 @@ export default function QuestionCard({
           <ArrowRight className="w-5 h-5" />
         </button>
       </nav>
+
+      {/* Modal Entenda a Questão */}
+      {showExplanation && explanation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-slate-900 sm:border border-slate-700 sm:rounded-2xl p-6 sm:p-8 w-full h-full sm:h-auto sm:max-h-[85vh] max-w-3xl overflow-y-auto space-y-6 shadow-2xl relative">
+            <button 
+              onClick={() => setShowExplanation(false)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-3 text-indigo-400">
+              <HelpCircle className="w-6 h-6" />
+              <h2 className="text-xl font-bold text-white">Entenda a Questão</h2>
+            </div>
+            
+            <div className="mt-4">
+              {explanation}
+            </div>
+
+            <div className="pt-6 mt-6 flex justify-end border-t border-slate-800">
+              <button 
+                onClick={() => setShowExplanation(false)} 
+                className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-all w-full sm:w-auto text-center"
+              >
+                Voltar para a pergunta
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
