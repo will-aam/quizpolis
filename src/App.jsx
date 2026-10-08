@@ -8,7 +8,9 @@ import {
   Compass, 
   ListOrdered,
   ChevronRight,
-  Info
+  Info,
+  Lock,
+  Check
 } from 'lucide-react';
 
 import { QUESTIONS, DIMENSIONS } from './data/questions';
@@ -112,60 +114,23 @@ export default function App() {
     }
   };
 
-  // Estatísticas de progresso
+  const totalQuestions = QUESTIONS.length;
   const answeredCount = Object.keys(answers).length;
-  const progressPercent = Math.round((answeredCount / QUESTIONS.length) * 100);
+  const progressPercentage = (answeredCount / totalQuestions) * 100;
   const currentQuestion = QUESTIONS[currentQuestionIndex];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans selection:bg-indigo-600 selection:text-white">
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80 px-4 sm:px-8 py-3.5 flex items-center justify-between">
-        <div 
-          onClick={() => currentScreen !== 'quiz' && setCurrentScreen('welcome')}
-          className="flex items-center gap-2.5 cursor-pointer select-none group"
-        >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-600/30 group-hover:scale-105 transition-transform">
-            <Compass className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <span className="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5">
-              Quizpolis
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 font-mono">
-                Multidimensional
-              </span>
-            </span>
-          </div>
+    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans select-none relative">
+      
+      {/* Barra de Progresso Global (visível apenas durante o quiz) */}
+      {(currentScreen === 'quiz' || currentScreen === 'block8') && (
+        <div className="fixed top-0 left-0 w-full h-1 bg-slate-900 z-50">
+          <div 
+            className="h-full bg-indigo-500 transition-all duration-500 ease-out"
+            style={{ width: `${currentScreen === 'block8' ? 100 : progressPercentage}%` }}
+          />
         </div>
-
-        {/* Status bar quando no quiz */}
-        {currentScreen === 'quiz' && (
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex flex-col items-end text-xs">
-              <span className="text-slate-400 font-medium">Progresso do questionário</span>
-              <span className="font-mono text-indigo-300 font-semibold">{answeredCount} de {QUESTIONS.length} respondidas ({progressPercent}%)</span>
-            </div>
-
-            <div className="w-24 sm:w-36 h-2 bg-slate-800 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-indigo-500 to-indigo-400 transition-all duration-300"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Botão de reset rápido no header */}
-        {currentScreen !== 'welcome' && (
-          <button
-            onClick={handleRestart}
-            title="Reiniciar Questionário"
-            className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/70 transition-colors"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
-        )}
-      </header>
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10 flex flex-col justify-center">
@@ -175,30 +140,52 @@ export default function App() {
 
         {currentScreen === 'quiz' && currentQuestion && (
           <div className="space-y-6">
-            {/* Seletor rápido de blocos (Navegação contextual) */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none text-xs">
+            {/* Progresso de Blocos Minimalista e Restrito */}
+            <div className="flex items-center sm:justify-center gap-1.5 sm:gap-2.5 overflow-x-auto pb-4 scrollbar-none w-full border-b border-slate-800/40 mb-6">
               {[1, 2, 3, 4, 5, 6, 7].map((bNum) => {
                 const bQuestions = QUESTIONS.filter(q => q.block === bNum);
                 const isCurrentBlock = currentQuestion.block === bNum;
                 const answeredInBlock = bQuestions.filter(q => answers[q.id] !== undefined).length;
                 const isBlockDone = answeredInBlock === bQuestions.length;
 
+                // Bloqueia se algum bloco anterior estiver incompleto
+                let isLocked = false;
+                if (bNum > 1) {
+                  for (let prev = 1; prev < bNum; prev++) {
+                    const prevQs = QUESTIONS.filter(q => q.block === prev);
+                    const prevAnswered = prevQs.filter(q => answers[q.id] !== undefined).length;
+                    if (prevAnswered < prevQs.length) {
+                      isLocked = true;
+                      break;
+                    }
+                  }
+                }
+
                 return (
                   <button
                     key={bNum}
+                    disabled={isLocked}
                     onClick={() => {
-                      const firstQIndex = QUESTIONS.findIndex(q => q.block === bNum);
-                      if (firstQIndex !== -1) setCurrentQuestionIndex(firstQIndex);
+                      if (!isLocked) {
+                        const firstQIndex = QUESTIONS.findIndex(q => q.block === bNum);
+                        if (firstQIndex !== -1) setCurrentQuestionIndex(firstQIndex);
+                      }
                     }}
-                    className={`px-3 py-1.5 rounded-xl border whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                    className={`px-3.5 py-2 rounded-xl border whitespace-nowrap transition-all flex items-center gap-2 shrink-0 ${
                       isCurrentBlock
                         ? 'bg-indigo-600/20 border-indigo-500 text-white font-bold'
+                        : isLocked
+                        ? 'bg-transparent border-slate-800/30 text-slate-600 cursor-not-allowed'
                         : isBlockDone
                         ? 'bg-slate-900 border-emerald-500/40 text-emerald-300'
-                        : 'bg-slate-900/50 border-slate-800 text-slate-400 hover:border-slate-700'
+                        : 'bg-slate-900/50 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-white'
                     }`}
                   >
-                    <span>Bloco {bNum}</span>
+                    {isLocked ? (
+                      <Lock className="w-3.5 h-3.5 opacity-60" />
+                    ) : (
+                      <span>Bloco {bNum}</span>
+                    )}
                     <span className="font-mono text-[10px] opacity-75">
                       ({answeredInBlock}/{bQuestions.length})
                     </span>

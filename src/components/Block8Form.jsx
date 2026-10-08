@@ -34,7 +34,7 @@ export default function Block8Form({ data, onChange, onFinish, onPrev }) {
   return (
     <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-300 pb-12">
       {/* Cabeçalho do Bloco 8 */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-2">
+      <div className="space-y-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-xs font-semibold text-indigo-400">
           <Sparkles className="w-3.5 h-3.5" />
           Etapa Final • Bloco 8
@@ -46,7 +46,7 @@ export default function Block8Form({ data, onChange, onFinish, onPrev }) {
       </div>
 
       {/* Questão A */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-4">
+      <div className="space-y-4">
         <div>
           <h3 className="text-lg font-bold text-white">{BLOCK_8_QUESTIONS.A.title}</h3>
           <p className="text-sm text-slate-300 mt-1">{BLOCK_8_QUESTIONS.A.instruction}</p>
@@ -68,7 +68,7 @@ export default function Block8Form({ data, onChange, onFinish, onPrev }) {
                 onClick={() => handleToggleA(opt)}
                 className={`p-3.5 rounded-xl border text-left text-sm font-medium flex items-center justify-between transition-all ${
                   isSelected
-                    ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-sm shadow-indigo-500/20'
+                    ? 'bg-indigo-600/20 border-indigo-500 text-white'
                     : isDisabled
                     ? 'bg-slate-950/40 border-slate-900 text-slate-600 cursor-not-allowed'
                     : 'bg-slate-950/80 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white'
@@ -83,7 +83,7 @@ export default function Block8Form({ data, onChange, onFinish, onPrev }) {
       </div>
 
       {/* Questão B */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-4">
+      <div className="space-y-4">
         <div>
           <h3 className="text-lg font-bold text-white">{BLOCK_8_QUESTIONS.B.title}</h3>
           <p className="text-sm text-slate-300 mt-1">{BLOCK_8_QUESTIONS.B.instruction}</p>
@@ -112,7 +112,7 @@ export default function Block8Form({ data, onChange, onFinish, onPrev }) {
       </div>
 
       {/* Questão C */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-4">
+      <div className="space-y-4">
         <div>
           <h3 className="text-lg font-bold text-white">{BLOCK_8_QUESTIONS.C.title}</h3>
           <p className="text-sm text-slate-300 mt-1">{BLOCK_8_QUESTIONS.C.instruction}</p>
@@ -155,9 +155,9 @@ export default function Block8Form({ data, onChange, onFinish, onPrev }) {
           type="button"
           onClick={onFinish}
           disabled={!isComplete}
-          className={`px-8 py-3.5 rounded-xl font-bold text-sm transition-all shadow-lg ${
+          className={`px-8 py-3.5 rounded-xl font-bold text-sm transition-all ${
             isComplete
-              ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30 hover:scale-105 active:scale-95'
+              ? 'bg-indigo-600 hover:bg-indigo-500 text-white hover:scale-105 active:scale-95'
               : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-800'
           }`}
         >

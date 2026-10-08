@@ -1,18 +1,17 @@
 import React from 'react';
-import { Sparkles, Layers, CheckCircle2, ChevronRight, BookOpen } from 'lucide-react';
+import { Sparkles, Layers, CheckCircle2, ChevronRight, BookOpen, Info } from 'lucide-react';
 import { DIMENSIONS } from '../data/questions';
+import { AuroraText } from './AuroraText';
+
 
 export default function WelcomeModal({ onStart }) {
   return (
     <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-500 py-6">
       {/* Hero Header */}
       <div className="text-center space-y-4">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs sm:text-sm font-medium">
-          <Sparkles className="w-4 h-4" />
-          Diagnóstico Multidimensional Avançado
-        </div>
+
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white">
-          Quiz de Alinhamento <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-indigo-200 to-sky-400">Político</span>
+          Mapeamento <AuroraText>Ideológico</AuroraText>
         </h1>
         <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
           Uma avaliação aprofundada em 7 dimensões independentes, medindo não apenas suas inclinações, mas seu grau de coerência e contextualidade.
@@ -20,9 +19,8 @@ export default function WelcomeModal({ onStart }) {
       </div>
 
       {/* Regras e Como Responder */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl space-y-6">
+      <div className="space-y-6">
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-indigo-400" />
           Como responder com precisão
         </h2>
 
@@ -53,10 +51,13 @@ export default function WelcomeModal({ onStart }) {
         </div>
 
         {/* Nota de Destaque sobre o 3 */}
-        <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/20 text-xs sm:text-sm text-indigo-200 flex items-start gap-3">
-          <span className="p-1 rounded-lg bg-indigo-500/20 font-bold text-xs uppercase tracking-wide">Importante</span>
-          <p>
-            O número <strong>3 não significa necessariamente indecisão</strong>. Use-o quando sua posição realmente depender de condições, contexto ou circunstâncias.
+        <div className="relative p-5 rounded-2xl bg-indigo-950/20 border-l-4 border-l-indigo-500 border-t border-r border-b border-indigo-500/10 flex flex-col gap-2.5">
+          <div className="flex items-center gap-2 text-indigo-400">
+            <Info className="w-4 h-4" />
+            <span className="font-bold text-[11px] uppercase tracking-widest">Nota Importante</span>
+          </div>
+          <p className="text-sm text-indigo-100/80 leading-relaxed pl-6">
+            O número <strong className="text-indigo-200">3 não significa necessariamente indecisão</strong>. Use-o quando sua posição realmente depender de condições, contexto ou circunstâncias.
           </p>
         </div>
 
@@ -79,10 +80,9 @@ export default function WelcomeModal({ onStart }) {
         <div className="pt-4 flex justify-center">
           <button
             onClick={onStart}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-base shadow-xl shadow-indigo-600/30 transition-all hover:scale-105 active:scale-95"
+            className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-indigo-400 text-white font-extrabold text-base tracking-wide transition-all duration-200 active:scale-95 active:brightness-90"
           >
-            <span>Iniciar Questionário</span>
-            <ChevronRight className="w-5 h-5" />
+            Iniciar Questionário
           </button>
         </div>
       </div>

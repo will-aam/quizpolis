@@ -1,24 +1,42 @@
 import React from 'react';
-import { 
-  FileText, 
-  Download, 
-  RotateCcw, 
-  HelpCircle, 
-  CheckCircle2, 
-  TrendingUp, 
-  ShieldCheck, 
+import {
+  FileText,
+  Download,
+  RotateCcw,
+  HelpCircle,
+  CheckCircle2,
+  TrendingUp,
+  ShieldCheck,
   Sparkles,
   ArrowRight,
   Layers,
   ChevronDown,
   ChevronUp,
-  MessageSquare
+  MessageSquare,
+  ArrowUp,
+  Image as ImageIcon
 } from 'lucide-react';
-import { exportToPDF, exportToText, exportToJSON } from '../utils/export';
+import { exportToPDF, exportToText, exportToJSON, exportToInstagramStory } from '../utils/export';
 import { QUESTIONS, BLOCK_8_QUESTIONS } from '../data/questions';
 
 export default function ResultsView({ results, answers, notes = {}, block8, onRestart }) {
   const [showFullGabarito, setShowFullGabarito] = React.useState(false);
+  const [showScrollButton, setShowScrollButton] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      // Show if scrolled more than 80%
+      if (scrollPosition >= documentHeight * 0.8) {
+        setShowScrollButton(true);
+      } else {
+        setShowScrollButton(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Helper para cor de badge
   const getBadgeColor = (label) => {
@@ -39,13 +57,14 @@ export default function ResultsView({ results, answers, notes = {}, block8, onRe
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500 pb-16">
+      
+      <div id="report-content" className="space-y-8">
       {/* Banner Principal com Tendência e Ressalva */}
-      <div className="bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900 border border-indigo-500/30 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden backdrop-blur-xl">
+      <div className="bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900 border border-indigo-500/30 rounded-3xl p-6 sm:p-10 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
 
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2 px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs font-medium text-indigo-300">
-            <Sparkles className="w-3.5 h-3.5" />
             Diagnóstico Final Concluído
           </div>
           <span className="text-xs text-slate-400">40 questões analisadas + Bloco de Decisão</span>
@@ -53,9 +72,10 @@ export default function ResultsView({ results, answers, notes = {}, block8, onRe
 
         <div className="space-y-4">
           <p className="text-xs uppercase tracking-wider text-slate-400 font-semibold">Tendência Predominante</p>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white flex flex-wrap items-center gap-3">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white flex flex-wrap items-center gap-2 sm:gap-3">
             <span>{results.generalLabel}</span>
-            <span className="text-lg sm:text-xl font-normal px-3 py-1 bg-slate-800/80 border border-slate-700 rounded-xl text-slate-300">
+            <span className="text-slate-500 font-light">-</span>
+            <span className="text-2xl sm:text-3xl font-medium text-slate-300">
               Média {results.generalAverage.toFixed(1)}
             </span>
           </h1>
@@ -75,27 +95,42 @@ export default function ResultsView({ results, answers, notes = {}, block8, onRe
             </p>
           </div>
         </div>
+      </div>
 
         {/* Botões de Download e Compartilhamento */}
         <div className="mt-8 pt-6 border-t border-slate-800 flex flex-wrap gap-3 items-center justify-between">
           <div className="flex flex-wrap gap-2.5">
             <button
-              onClick={() => exportToPDF(results, answers, notes, block8)}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              onClick={() => exportToPDF(results, answers, notes, block8, false)}
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <Download className="w-4 h-4" />
-              Baixar Relatório e Gabarito (PDF)
+              Baixar Relatório 
+            </button>
+            <button
+              onClick={() => exportToPDF(results, answers, notes, block8, true)}
+              className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium text-sm transition-all"
+            >
+              <Download className="w-4 h-4" />
+              Relatório + Gabarito
+            </button>
+            <button
+              onClick={() => exportToInstagramStory('report-content')}
+              className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-500 hover:to-pink-500 text-white font-medium text-sm transition-all"
+            >
+              <ImageIcon className="w-4 h-4" />
+              Stories (Imagem)
             </button>
             <button
               onClick={() => exportToText(results, answers, notes, block8)}
-              className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium text-sm transition-all"
+              className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium text-sm transition-all hidden sm:flex"
             >
               <FileText className="w-4 h-4" />
-              Gabarito em TXT
+              TXT
             </button>
             <button
               onClick={() => exportToJSON(results, answers, notes, block8)}
-              className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium text-sm transition-all"
+              className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium text-sm transition-all hidden sm:flex"
             >
               <Layers className="w-4 h-4" />
               Exportar JSON
@@ -115,14 +150,13 @@ export default function ResultsView({ results, answers, notes = {}, block8, onRe
       {/* Grid: Contextualidade e Princípios Prioritários */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* 2. Grau de Contextualidade */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-7 space-y-4">
+        <div className="space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">Segunda Camada</span>
-            <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-              results.contextuality.grade === 'Alto' ? 'bg-purple-500/10 text-purple-300 border-purple-500/30' :
-              results.contextuality.grade === 'Baixo' ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' :
-              'bg-blue-500/10 text-blue-300 border-blue-500/30'
-            }`}>
+            <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${results.contextuality.grade === 'Alto' ? 'bg-purple-500/10 text-purple-300 border-purple-500/30' :
+                results.contextuality.grade === 'Baixo' ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' :
+                  'bg-blue-500/10 text-blue-300 border-blue-500/30'
+              }`}>
               Grau {results.contextuality.grade}
             </span>
           </div>
@@ -143,7 +177,7 @@ export default function ResultsView({ results, answers, notes = {}, block8, onRe
         </div>
 
         {/* 3. Princípios Prioritários (Bloco 8) */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-7 space-y-4">
+        <div className="space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">Princípios & Tomada de Decisão</span>
             <span className="text-xs text-slate-400">Bloco 8</span>
@@ -178,7 +212,7 @@ export default function ResultsView({ results, answers, notes = {}, block8, onRe
       </div>
 
       {/* 4. Posicionamento por Dimensão (Tabela e Barras Gráficas) */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6">
+      <div className="space-y-6">
         <div>
           <h2 className="text-2xl font-bold text-white">1. Posicionamento por Dimensão</h2>
           <p className="text-sm text-slate-400 mt-1">
@@ -190,8 +224,8 @@ export default function ResultsView({ results, answers, notes = {}, block8, onRe
           {Object.values(results.dimensions).map((dim) => {
             const percentage = ((dim.average - 1) / 4) * 100; // 1 -> 0%, 5 -> 100%
             return (
-              <div 
-                key={dim.id} 
+              <div
+                key={dim.id}
                 className="bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4 sm:p-5 hover:border-slate-700 transition-all space-y-3"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -210,7 +244,7 @@ export default function ResultsView({ results, answers, notes = {}, block8, onRe
                 {/* Barra de espectro visual */}
                 <div className="space-y-1.5">
                   <div className="h-2.5 w-full bg-slate-800 rounded-full overflow-hidden relative">
-                    <div 
+                    <div
                       className={`h-full rounded-full bg-gradient-to-r ${getBarColor(dim.label)} transition-all duration-700`}
                       style={{ width: `${Math.max(6, Math.min(100, percentage))}%` }}
                     />
@@ -230,7 +264,7 @@ export default function ResultsView({ results, answers, notes = {}, block8, onRe
       </div>
 
       {/* 5. Gabarito Resumido com Toggle */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6">
+      <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -276,8 +310,8 @@ export default function ResultsView({ results, answers, notes = {}, block8, onRe
               const noteText = notes[q.id];
 
               return (
-                <div 
-                  key={q.id} 
+                <div
+                  key={q.id}
                   className="p-4 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex flex-col gap-3 text-xs"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -308,6 +342,17 @@ export default function ResultsView({ results, answers, notes = {}, block8, onRe
           </div>
         )}
       </div>
+
+      {/* Botão flutuante para voltar ao topo */}
+      {showScrollButton && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-6 right-6 p-4 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 shadow-2xl transition-all z-50 hover:scale-105 active:scale-95 animate-in slide-in-from-bottom-5"
+          title="Voltar ao Topo"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }

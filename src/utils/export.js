@@ -4,7 +4,7 @@ import { QUESTIONS, BLOCK_8_QUESTIONS } from "../data/questions.js";
 /**
  * Gera e faz download de um PDF diagramado com o Diagnóstico e o Gabarito Resumido
  */
-export function exportToPDF(results, answers, notes = {}, block8 = {}, participantName = "Participante") {
+export function exportToPDF(results, answers, notes = {}, block8 = {}, includeGabarito = true, participantName = "Participante") {
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
@@ -151,98 +151,100 @@ export function exportToPDF(results, answers, notes = {}, block8 = {}, participa
 
   y += 8;
 
-  // 5. Gabarito Resumido com Todas as Respostas
-  checkPageBreak(25);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.setTextColor(15, 23, 42);
-  doc.text("GABARITO RESUMIDO DAS 40 QUESTÕES:", margin, y);
-  y += 6;
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
-  doc.setTextColor(100, 116, 139);
-  doc.text("Legenda: 1=Discordo Totalmente | 2=Discordo Parcialmente | 3=Depende/Intermediária | 4=Concordo Parcialmente | 5=Concordo Totalmente", margin, y);
-  y += 5;
-
-  QUESTIONS.forEach(q => {
-    const ans = answers[q.id];
-    const userNote = notes[q.id];
-    let ansText = "Não respondida";
-
-    if (q.type === 'likert') {
-      const labels = {
-        1: "1 — Discordo totalmente",
-        2: "2 — Discordo parcialmente",
-        3: "3 — Depende / posição intermediária",
-        4: "4 — Concordo parcialmente",
-        5: "5 — Concordo totalmente"
-      };
-      ansText = labels[ans] || "—";
-    } else if (q.type === 'scenario') {
-      const opt = q.options.find(o => o.id === ans);
-      ansText = opt ? `Alternativa (${opt.id}) — ${opt.text}` : "—";
-    }
-
-    // Calcular altura estimada
-    const noteLines = userNote ? doc.splitTextToSize(`Complemento: "${userNote}"`, contentWidth - 4) : [];
-    const itemHeight = 11 + (noteLines.length > 0 ? (noteLines.length * 3.5) + 3 : 0);
-    checkPageBreak(itemHeight + 2);
-
-    doc.setFillColor(250, 250, 250);
-    doc.rect(margin, y, contentWidth, itemHeight, "F");
-    doc.setDrawColor(241, 245, 249);
-    doc.rect(margin, y, contentWidth, itemHeight, "S");
-
+  if (includeGabarito) {
+    // 5. Gabarito Resumido com Todas as Respostas
+    checkPageBreak(25);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    doc.setTextColor(30, 41, 59);
-    doc.text(`Q${q.id}. [${q.dimension.toUpperCase()}]`, margin + 2, y + 4);
+    doc.setFontSize(11);
+    doc.setTextColor(15, 23, 42);
+    doc.text("GABARITO RESUMIDO DAS 40 QUESTÕES:", margin, y);
+    y += 6;
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
-    doc.setTextColor(71, 85, 105);
-    const qShort = q.text.length > 90 ? q.text.substring(0, 87) + "..." : q.text;
-    doc.text(qShort, margin + 28, y + 4);
+    doc.setTextColor(100, 116, 139);
+    doc.text("Legenda: 1=Discordo Totalmente | 2=Discordo Parcialmente | 3=Depende/Intermediária | 4=Concordo Parcialmente | 5=Concordo Totalmente", margin, y);
+    y += 5;
 
+    QUESTIONS.forEach(q => {
+      const ans = answers[q.id];
+      const userNote = notes[q.id];
+      let ansText = "Não respondida";
+
+      if (q.type === 'likert') {
+        const labels = {
+          1: "1 — Discordo totalmente",
+          2: "2 — Discordo parcialmente",
+          3: "3 — Depende / posição intermediária",
+          4: "4 — Concordo parcialmente",
+          5: "5 — Concordo totalmente"
+        };
+        ansText = labels[ans] || "—";
+      } else if (q.type === 'scenario') {
+        const opt = q.options.find(o => o.id === ans);
+        ansText = opt ? `Alternativa (${opt.id}) — ${opt.text}` : "—";
+      }
+
+      // Calcular altura estimada
+      const noteLines = userNote ? doc.splitTextToSize(`Complemento: "${userNote}"`, contentWidth - 4) : [];
+      const itemHeight = 11 + (noteLines.length > 0 ? (noteLines.length * 3.5) + 3 : 0);
+      checkPageBreak(itemHeight + 2);
+
+      doc.setFillColor(250, 250, 250);
+      doc.rect(margin, y, contentWidth, itemHeight, "F");
+      doc.setDrawColor(241, 245, 249);
+      doc.rect(margin, y, contentWidth, itemHeight, "S");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(30, 41, 59);
+      doc.text(`Q${q.id}. [${q.dimension.toUpperCase()}]`, margin + 2, y + 4);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(71, 85, 105);
+      const qShort = q.text.length > 90 ? q.text.substring(0, 87) + "..." : q.text;
+      doc.text(qShort, margin + 28, y + 4);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(79, 70, 229);
+      doc.text(`Sua resposta: ${ansText}`, margin + 2, y + 8);
+
+      if (noteLines.length > 0) {
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(7);
+        doc.setTextColor(100, 116, 139);
+        doc.text(noteLines, margin + 2, y + 12);
+      }
+
+      y += itemHeight + 1.5;
+    });
+
+    // Bloco 8 no Gabarito
+    checkPageBreak(25);
     doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(15, 23, 42);
+    doc.text("BLOCO 8 — PRINCÍPIOS E TOMADA DE DECISÃO", margin, y);
+    y += 5;
+
+    // A
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    doc.setTextColor(79, 70, 229);
-    doc.text(`Sua resposta: ${ansText}`, margin + 2, y + 8);
+    doc.setTextColor(51, 65, 85);
+    doc.text(`A. Princípios Prioritários: ${(block8.A || []).join(", ") || "Nenhum selecionado"}`, margin, y);
+    y += 5;
 
-    if (noteLines.length > 0) {
-      doc.setFont("helvetica", "italic");
-      doc.setFontSize(7);
-      doc.setTextColor(100, 116, 139);
-      doc.text(noteLines, margin + 2, y + 12);
-    }
+    // B
+    const optB = BLOCK_8_QUESTIONS.B.options.find(o => o.value === block8.B);
+    doc.text(`B. Balanço de Efeitos: ${optB ? optB.label : "Não informado"}`, margin, y);
+    y += 5;
 
-    y += itemHeight + 1.5;
-  });
-
-  // Bloco 8 no Gabarito
-  checkPageBreak(25);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  doc.setTextColor(15, 23, 42);
-  doc.text("BLOCO 8 — PRINCÍPIOS E TOMADA DE DECISÃO", margin, y);
-  y += 5;
-
-  // A
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.setTextColor(51, 65, 85);
-  doc.text(`A. Princípios Prioritários: ${(block8.A || []).join(", ") || "Nenhum selecionado"}`, margin, y);
-  y += 5;
-
-  // B
-  const optB = BLOCK_8_QUESTIONS.B.options.find(o => o.value === block8.B);
-  doc.text(`B. Balanço de Efeitos: ${optB ? optB.label : "Não informado"}`, margin, y);
-  y += 5;
-
-  // C
-  doc.text(`C. Fatores de Contexto: ${(block8.C || []).join(", ") || "Nenhum selecionado"}`, margin, y);
-  y += 8;
+    // C
+    doc.text(`C. Fatores de Contexto: ${(block8.C || []).join(", ") || "Nenhum selecionado"}`, margin, y);
+    y += 8;
+  }
 
   // Rodapé final
   doc.setFont("helvetica", "italic");
@@ -251,7 +253,33 @@ export function exportToPDF(results, answers, notes = {}, block8 = {}, participa
   doc.text("Documento gerado automaticamente por Quizpolis. Uso analítico e reflexivo pessoal.", margin, pageHeight - 10);
 
   // Salvar
-  doc.save(`Quizpolis_Resultado_Gabarito_${new Date().toISOString().slice(0, 10)}.pdf`);
+  const suffix = includeGabarito ? "_Completo" : "_Relatorio";
+  doc.save(`Quizpolis_Resultado${suffix}_${new Date().toISOString().slice(0, 10)}.pdf`);
+}
+
+import html2canvas from 'html2canvas';
+
+export async function exportToInstagramStory(elementId) {
+  const element = document.getElementById(elementId);
+  if (!element) return;
+  
+  try {
+    const canvas = await html2canvas(element, {
+      backgroundColor: '#020617', // slate-950
+      scale: 2, 
+      useCORS: true,
+      logging: false,
+    });
+    
+    const dataUrl = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = `quizpolis_story_${new Date().toISOString().slice(0, 10)}.png`;
+    a.click();
+  } catch (error) {
+    console.error("Erro ao gerar imagem para story:", error);
+    alert("Não foi possível gerar a imagem. Tente novamente.");
+  }
 }
 
 /**
